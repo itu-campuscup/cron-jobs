@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "bun": "^1.3.3",
+    "@supabase/supabase-js": "^2.9.0"
+  },
+  "name": "supabase",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "scripts": {
+    "keep-alive": "bun run keep-alive.ts"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
