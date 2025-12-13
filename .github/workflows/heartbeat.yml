@@ -1,4 +1,4 @@
-name: Run Weekly Workflows
+name: Run Daily Workflows
 on:
   schedule:
     # Every day
