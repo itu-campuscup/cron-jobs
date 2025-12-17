@@ -133,6 +133,31 @@ const writeHeartbeat = async (
   }
 };
 
+// Read the list of heartbeats (not used for anything)
+const readHeartbeats = async (project: Project): Promise<any[]> => {
+  const url = `${project.url.replace(/\/$/, "")}/rest/v1/heartbeat`;
+  const res = await fetch(url, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${project.key}`,
+      apikey: project.key,
+    },
+  });
+  if (res.status >= 200 && res.status < 300) {
+    const body = await res.json();
+    console.log(
+      `[${new Date().toISOString()}] [${project.name}] read ok count=${body.length}`
+    );
+    return [body];
+
+  } else {
+    console.warn(
+      `[${new Date().toISOString()}] [${project.name}] read failed status=${res.status}`
+    );
+    return [];
+  }
+}
+
 async function main() {
   const projects = await readConfig();
   if (projects.length === 0) {
@@ -142,12 +167,21 @@ async function main() {
     process.exit(1);
   }
 
-  const results = await Promise.all(
+  const insertRes = await Promise.all(
     projects.map((p) => writeHeartbeat(p))
   );
 
-  const succeeded = results.filter(Boolean).length;
-  console.log(`Summary: ${succeeded}/${results.length} succeeded`);
+  const readRes = await Promise.all(
+    projects.map((p) => readHeartbeats(p))
+  );
+
+  const insertSucceed = insertRes.filter(Boolean).length;
+  console.log(`Summary Insert:\t${insertSucceed}/${insertRes.length} succeeded`);
+
+  const readSucceed = readRes.filter((r) => r.length > 0).length;
+  console.log(`Summary Read:\t${readSucceed}/${readRes.length} succeeded`);
+
+  const succeeded = insertSucceed + readSucceed;
 
   if (succeeded === 0) process.exit(1);
   process.exit(0);
